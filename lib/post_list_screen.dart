@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'post_model.dart';
 import 'api_service.dart';
+import 'post_detail_screen.dart';
 
 class PostListScreen extends StatefulWidget {
   @override
@@ -19,32 +20,38 @@ class _PostListScreenState extends State<PostListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("API Posts")),
+      appBar: AppBar(title: const Text("API Posts")),
       body: FutureBuilder<List<Post>>(
         future: futurePosts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No posts found."));
+            return const Center(child: Text("No posts found."));
           }
+
           final posts = snapshot.data!;
           return ListView.builder(
             itemCount: posts.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(posts[index].title),
-                subtitle: Text(posts[index].body, maxLines: 1),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PostDetailScreen(post: posts[index]),
-                    ),
-                  );
-                },
+              final post = posts[index];
+              return Card(
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(post.title),
+                  subtitle: Text(post.body, maxLines: 1),
+                  onTap: () {
+                    // Navigation logic to Detail Screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PostDetailScreen(post: post),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
