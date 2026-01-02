@@ -18,11 +18,38 @@ class _PostListScreenState extends State<PostListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Note: The image cuts off here, but typically you would use a FutureBuilder
-    // to display the futurePosts data in a ListView.
     return Scaffold(
-      appBar: AppBar(title: const Text("Posts")),
-      body: const Center(child: Text("FutureBuilder logic goes here")),
+      appBar: AppBar(title: Text("API Posts")),
+      body: FutureBuilder<List<Post>>(
+        future: futurePosts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text("No posts found."));
+          }
+          final posts = snapshot.data!;
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(posts[index].title),
+                subtitle: Text(posts[index].body, maxLines: 1),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PostDetailScreen(post: posts[index]),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
